@@ -1,4 +1,5 @@
 from light import Light
+from light_polygon import Light_polygon
 from shadow_polygon import Shadow_polygon
 
 import pygame as pg
@@ -18,10 +19,10 @@ class Terrain:
 
 		self.lights = []
 		self.lights.append(Light((320, 300), 400, 200, (255, 0, 0, 255)))
-		self.lights.append(Light((960, 300), 400, 200, (0, 255, 0, 255)))
+		self.lights.append(Light_polygon((960, 300), [(-10, 0), (0, -10), (10, 0), (0, 10)], 400, 0, 200, (0, 255, 0, 255)))
 		self.lights.append(Light((1600, 300), 400, 200, (0, 0, 255, 255)))
 		self.lights.append(Light((320, 810), 400, 200, (255, 255, 0, 255)))
-		self.lights.append(Light((960, 810), 400, 200, (0, 255, 255, 255)))
+		self.lights.append(Light_polygon((960, 810), [(-10, 0), (0, -10), (10, 0), (0, 10)], 400, 0, 200, (0, 255, 255, 255)))
 		self.lights.append(Light((1600, 810), 400, 200, (255, 0, 255, 255)))
 
 		self.lights_surface = []

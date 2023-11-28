@@ -2,14 +2,15 @@ import pygame as pg
 from pygame import Vector2
 
 
-class Light:
+class Light_polygon:
 	def __init__(
 			self,
 			position:tuple[int, int],
+			points:list[tuple[int, int]],
 			range:float,
+			range_full_power:float,
 			power:int,
 			color:tuple[int, int, int],
-			range_full_power:float=0,
 			radial_smooth_precision:int=100
 		) -> None:
 		"""
@@ -21,6 +22,36 @@ class Light:
 		radial_smooth_precision:int -> The precision of the light. More it is, more gradient you will have
 		"""
 		self.position = Vector2(position)
+
+		self.points = []
+		min_x = 0
+		max_x = 0
+		min_y = 0
+		max_y = 0
+		max_lenght = 0
+		for p in points:
+			point = Vector2(p)
+			if point.x < min_x:
+				min_x = point.x
+			if point.x > max_x:
+				max_x = point.x
+			if point.y < min_y:
+				min_y = point.y
+			if point.y > max_y:
+				max_y = point.y
+			lenght = point.length()
+			if lenght > max_lenght:
+				max_lenght = lenght
+			self.points.append(point)
+
+		for point in self.points:
+			point /= max_lenght
+
+		min_x /= max_lenght
+		max_x /= max_lenght
+		min_y /= max_lenght
+		max_y /= max_lenght
+
 		self.range = range
 		self.power = power
 		self.color = pg.Color(color)
@@ -32,9 +63,17 @@ class Light:
 
 		self.total_range = self.range + self.range_full_power
 
-		self.surface_size = Vector2((self.range + self.range_full_power) * 2, (self.range + self.range_full_power) * 2)
+		min_x *= self.total_range
+		max_x *= self.total_range
+		min_y *= self.total_range
+		max_y *= self.total_range
+
+		self.surface_size = Vector2(max_x - min_x + 1, max_y - min_y + 1)
 		self.surface = pg.Surface(self.surface_size, pg.SRCALPHA)
 		self.surface_position = self.position - (self.surface_size / 2)
+
+		self.center = Vector2(-min_x, -min_y)
+
 		self._compute_light_surface()
 
 
@@ -56,13 +95,26 @@ class Light:
 		width = self.range / self.radial_smooth_precision
 		size = width
 
-		# Draw the full power circle if necessary
+		points = []
+
+		# Draw the full power polygon if necessary
 		if self.range_full_power > 0:
-			pg.draw.circle(self.surface, color, self.surface_size / 2, self.range_full_power)
+			for point in self.points:
+				p = point.copy()
+				p *= self.range_full_power
+				p += self.center
+				points.append(p)
+			pg.draw.polygon(self.surface, color, points)
 			size += self.range_full_power
 
 		# Draw the light smouth
 		for _ in range(self.radial_smooth_precision):
-			pg.draw.circle(self.surface, color, self.surface_size / 2, size, int(width * 2))
+			points.clear()
+			for point in self.points:
+				p = point.copy()
+				p *= size
+				p += self.center
+				points.append(p)
+			pg.draw.polygon(self.surface, color, points, int(width * 2))
 			size += width
 			color[3] -= decrease_alpha
