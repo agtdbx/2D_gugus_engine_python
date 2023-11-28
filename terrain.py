@@ -69,7 +69,6 @@ class Terrain:
 			surface = self.shadow_surface.copy()
 			# Apply the light
 			light.draw(surface)
-			light.draw_source(surface)
 			# Apply the shadows
 			for shadow_obstacle in self.shadow_obstacles:
 				shadow_obstacle.draw_shadow(surface, shadow_color, light)
@@ -78,5 +77,5 @@ class Terrain:
 
 		# Blit all surfaces
 		for surface in self.lights_surface:
-			self.shadow_surface.blit(surface, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+			self.shadow_surface.blit(surface, (0, 0), special_flags=pg.BLEND_RGBA_MAX)
 

@@ -11,7 +11,7 @@ class Shadow_obstacle:
 			position:tuple[float, float],
 			points:list[tuple[float, float]],
 			degree:float=0,
-			color:tuple[int, int, int]=(0, 0, 150),
+			color:tuple[int, int, int]=(0, 0, 200),
 			outline_color:tuple[int, int, int]=(0, 0, 255)
 		) -> None:
 		"""

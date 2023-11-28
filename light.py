@@ -36,11 +36,7 @@ class Light:
 
 
 	def draw(self, light_surface:pg.Surface):
-		light_surface.blit(self.surface, self.surface_position, special_flags=pg.BLEND_RGBA_MULT)
-
-
-	def draw_color_area(self, surface:pg.Surface):
-		pg.draw.circle(surface, self.color, self.position, self.total_range)
+		light_surface.blit(self.surface, self.surface_position)
 
 
 	def draw_source(self, light_surface:pg.Surface):
@@ -51,12 +47,9 @@ class Light:
 
 
 	def _compute_light_surface(self):
-		# Put all in shadow
-		self.surface.fill((0, 0, 0, 255))
-
 		# Compute some variable for draw smouth light
-		color = [self.color.r, self.color.g, self.color.b, 255 - self.power]
-		increase_alpha = self.power / self.radial_smooth_precision
+		color = [self.color.r, self.color.g, self.color.b, self.power]
+		decrease_alpha = self.power / self.radial_smooth_precision
 		width = self.range / self.radial_smooth_precision
 		size = width
 
@@ -69,4 +62,4 @@ class Light:
 		for _ in range(self.radial_smooth_precision):
 			pg.draw.circle(self.surface, color, self.surface_size / 2, size, int(width * 2))
 			size += width
-			color[3] += increase_alpha
+			color[3] -= decrease_alpha
