@@ -38,7 +38,6 @@ class Light:
 		# light_surface.blit(self.surface, self.surface_position)
 		light_surface.blit(self.surface, (0, 0))
 
-
 	def draw_source(self, light_surface:pg.Surface):
 		if self.range_full_power > 0:
 			pg.draw.circle(light_surface, self.color, self.position, self.range_full_power)

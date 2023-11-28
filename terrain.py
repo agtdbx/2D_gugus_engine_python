@@ -72,8 +72,9 @@ class Terrain:
 
 		# Compute lights surface
 		for i in range(len(self.lights)):
-			self.lights_surface[i].fill(shadow_color)
+			# self.lights_surface[i] = self.lights[i].surface.copy()
 
+			self.lights_surface[i].fill(shadow_color)
 			# Apply the light
 			self.lights[i].draw(self.lights_surface[i])
 			# Apply the shadows
@@ -81,6 +82,9 @@ class Terrain:
 				shadow_obstacle.draw_shadow(self.lights_surface[i], self.lights[i])
 
 		# Blit all surfaces
+		blit_list = []
 		for i in range(len(self.lights_surface)):
-			self.shadow_surface.blit(self.lights_surface[i], self.lights[i].surface_position, special_flags=pg.BLEND_RGBA_MAX)
+			blit_list.append((self.lights_surface[i], self.lights[i].surface_position, None, pg.BLEND_RGBA_MAX))
+
+		self.shadow_surface.blits(blit_list)
 
