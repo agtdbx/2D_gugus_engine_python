@@ -39,6 +39,17 @@ class Light:
 		light_surface.blit(self.surface, self.surface_position, special_flags=pg.BLEND_RGBA_MULT)
 
 
+	def draw_color_area(self, surface:pg.Surface):
+		pg.draw.circle(surface, self.color, self.position, self.total_range)
+
+
+	def draw_source(self, light_surface:pg.Surface):
+		if self.range_full_power > 0:
+			pg.draw.circle(light_surface, self.color, self.position, self.range_full_power)
+		else:
+			pg.draw.circle(light_surface, self.color, self.position, 1)
+
+
 	def _compute_light_surface(self):
 		# Put all in shadow
 		self.surface.fill((0, 0, 0, 255))

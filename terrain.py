@@ -17,10 +17,12 @@ class Terrain:
 		self.surface = pg.Surface(self.size, pg.SRCALPHA)
 
 		self.lights = []
-		self.lights.append(Light((500, 500), 300, 200, (255, 255, 50, 255)))
+		self.lights.append(Light((500, 500), 300, 150, (255, 0, 0, 255)))
+		self.lights.append(Light((650, 450), 200, 200, (0, 255, 0, 255)))
+		self.lights.append(Light((600, 350), 150, 250, (0, 0, 255, 255)))
 
 		self.shadow_surface = pg.Surface(self.size, pg.SRCALPHA)
-		self.shadow_strengh = 200
+		self.shadow_strengh = 230
 
 		self.shadow_obstacles = []
 		self.shadow_obstacles.append(Shadow_obstacle(
@@ -50,7 +52,7 @@ class Terrain:
 		for shadow_obstacle in self.shadow_obstacles:
 			shadow_obstacle.draw(self.surface)
 
-		# Draw lights and shadows
+		# Draw shadows
 		self._compute_light_and_shadow()
 		self.surface.blit(self.shadow_surface, (0, 0))
 
@@ -67,6 +69,7 @@ class Terrain:
 			surface = self.shadow_surface.copy()
 			# Apply the light
 			light.draw(surface)
+			light.draw_source(surface)
 			# Apply the shadows
 			for shadow_obstacle in self.shadow_obstacles:
 				shadow_obstacle.draw_shadow(surface, shadow_color, light)

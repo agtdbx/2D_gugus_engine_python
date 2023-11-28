@@ -24,7 +24,7 @@ class Game:
 
 		self.run_main_loop = True
 
-		self.terrain = Terrain(self.screen_size, (50, 150, 50, 255))
+		self.terrain = Terrain(self.screen_size, (255, 255, 255, 255))
 
 
 
