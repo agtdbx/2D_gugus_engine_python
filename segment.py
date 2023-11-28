@@ -45,32 +45,32 @@ class Segment:
 			(point, point_projected_by_shadow)
 		]
 		"""
-		try:
-			direction_light_segment = (self.center - light.position).normalize()
-		except:
+		direction_light_segment = (self.center - light.position)
+		dist = direction_light_segment.length()
+		if dist == 0 or dist > light.total_range:
 			return None
+		direction_light_segment /= dist
 		# If the light and the normal are in same direction, no shadow
 		if direction_light_segment.dot(self.normal) > 0:
 			return None
 
+		start = self.start_point - light.surface_position
+		end = self.end_point - light.surface_position
+
 		direction_light_start = self.start_point - light.position
 		distance_light_start = direction_light_start.length()
+		direction_light_start /= distance_light_start
 
 		direction_light_end = self.end_point - light.position
 		distance_light_end = direction_light_end.length()
-
-		# If both point arent in the light range
-		if distance_light_start > light.total_range and distance_light_end > light.total_range:
-			return None
-		direction_light_start /= distance_light_start
 		direction_light_end /= distance_light_end
 
 		length_of_projection = light.total_range - min(distance_light_start, distance_light_end)
 
-		start_projection = self.start_point + direction_light_start * length_of_projection
-		end_projection = self.end_point + direction_light_end * length_of_projection
+		start_projection = start + direction_light_start * length_of_projection
+		end_projection = end + direction_light_end * length_of_projection
 
-		return [(self.start_point.copy(), start_projection), (self.end_point.copy(), end_projection)]
+		return [start, start_projection, end_projection, end]
 
 
 def get_normal_of_segment(start:Vector2, end:Vector2) -> Vector2:

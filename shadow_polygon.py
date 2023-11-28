@@ -5,7 +5,7 @@ import pygame as pg
 from pygame import Vector2
 
 
-class Shadow_obstacle:
+class Shadow_polygon:
 	def __init__(
 			self,
 			position:tuple[float, float],
@@ -23,11 +23,15 @@ class Shadow_obstacle:
 		color:tuple[int, int, int]=(0, 0, 150) -> the color of the polygon
 		outline_color:tuple[int, int, int]=(0, 0, 255) -> the color of the polygon's border
 		"""
-
 		self.position = Vector2(position)
 		self.points = []
+		self.circle_arround_radius = 0
 		for point in points:
-			self.points.append(pg.Vector2(point) + self.position)
+			p = pg.Vector2(point)
+			dist = p.length()
+			if dist > self.circle_arround_radius:
+				self.circle_arround_radius = dist
+			self.points.append(p + self.position)
 		self.number_of_points = len(self.points)
 
 		self.color = pg.Color(color)
@@ -57,17 +61,14 @@ class Shadow_obstacle:
 			surface:pg.Surface,
 			light:Light
 		):
+		# Check if light is not too far
+		if (light.position - self.position).length() - self.circle_arround_radius > light.total_range:
+			return
 		# Compute all shadow point
-		for segment in self.segments:
-			shadow_projection = segment.get_shadow_projection(light)
+		for i in range(len(self.segments)):
+			shadow_projection = self.segments[i].get_shadow_projection(light)
 			if shadow_projection != None:
-				shadow_polygon_points = [
-					shadow_projection[0][0] - light.surface_position,
-					shadow_projection[1][0] - light.surface_position,
-					shadow_projection[1][1] - light.surface_position,
-					shadow_projection[0][1] - light.surface_position
-				]
-				pg.draw.polygon(surface, (0, 0, 0, 0), shadow_polygon_points)
+				pg.draw.polygon(surface, (0, 0, 0, 0), shadow_projection)
 
 
 	def move(self, direction:pg.Vector2):

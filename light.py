@@ -27,6 +27,9 @@ class Light:
 		self.range_full_power = range_full_power
 		self.radial_smooth_precision = radial_smooth_precision
 
+		if self.radial_smooth_precision > self.range:
+			self.radial_smooth_precision = self.range
+
 		self.total_range = self.range + self.range_full_power
 
 		self.surface_size = Vector2((self.range + self.range_full_power) * 2, (self.range + self.range_full_power) * 2)

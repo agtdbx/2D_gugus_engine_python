@@ -1,5 +1,5 @@
 from light import Light
-from shadow_obstacle import Shadow_obstacle
+from shadow_polygon import Shadow_polygon
 
 import pygame as pg
 from pygame import Vector2
@@ -17,34 +17,36 @@ class Terrain:
 		self.surface = pg.Surface(self.size, pg.SRCALPHA)
 
 		self.lights = []
-
 		self.lights.append(Light((320, 300), 400, 200, (255, 0, 0, 255)))
 		self.lights.append(Light((960, 300), 400, 200, (0, 255, 0, 255)))
 		self.lights.append(Light((1600, 300), 400, 200, (0, 0, 255, 255)))
-
 		self.lights.append(Light((320, 810), 400, 200, (255, 255, 0, 255)))
 		self.lights.append(Light((960, 810), 400, 200, (0, 255, 255, 255)))
 		self.lights.append(Light((1600, 810), 400, 200, (255, 0, 255, 255)))
 
 		self.lights_surface = []
 		for i in range(len(self.lights)):
-			self.lights_surface.append(pg.Surface(self.lights[i].surface_size, pg.SRCALPHA))
+			self.lights_surface.append(self.lights[i].surface.copy())
 
 		self.shadow_surface = pg.Surface(self.size, pg.SRCALPHA)
 		self.shadow_strengh = 230
 
-		self.shadow_obstacles = []
+		self.shadow_polygons = []
 		for y in range(50, int(self.size.y), 100):
 			for x in range(50, int(self.size.x), 100):
-				self.shadow_obstacles.append(Shadow_obstacle(
+				self.shadow_polygons.append(Shadow_polygon(
 					(x, y),
 					[(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
 				))
+				#self.shadow_polygons.append(Shadow_polygon(
+				#	(x, y),
+				#	[(-10, -20), (10, -20), (10, 20), (-10, 20)]
+				#))
 
 
 	def update(self, delta):
-		for shadow_obstacle in self.shadow_obstacles:
-			shadow_obstacle.rotate(45 * delta)
+		for shadow_polygon in self.shadow_polygons:
+			shadow_polygon.rotate(45 * delta)
 		self._updateDraw()
 
 
@@ -56,8 +58,8 @@ class Terrain:
 		self.surface.fill(self.background_color)
 
 		# Draw all terrain
-		for shadow_obstacle in self.shadow_obstacles:
-			shadow_obstacle.draw(self.surface)
+		for shadow_polygon in self.shadow_polygons:
+			shadow_polygon.draw(self.surface)
 
 		# Draw shadows
 		self._compute_light_and_shadow()
@@ -78,8 +80,8 @@ class Terrain:
 			# Apply the light
 			self.lights[i].draw(self.lights_surface[i])
 			# Apply the shadows
-			for shadow_obstacle in self.shadow_obstacles:
-				shadow_obstacle.draw_shadow(self.lights_surface[i], self.lights[i])
+			for shadow_polygon in self.shadow_polygons:
+				shadow_polygon.draw_shadow(self.lights_surface[i], self.lights[i])
 
 		# Blit all surfaces
 		blit_list = []

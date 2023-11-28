@@ -27,7 +27,6 @@ class Game:
 		self.terrain = Terrain(self.screen_size, (255, 255, 255, 255))
 
 
-
 	def run(self):
 		"""
 		This method is the main loop of the game
