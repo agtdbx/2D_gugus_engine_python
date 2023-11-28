@@ -55,7 +55,6 @@ class Shadow_obstacle:
 	def draw_shadow(
 			self,
 			surface:pg.Surface,
-			shadow_color:tuple[int, int, int],
 			light:Light
 		):
 		# Compute all shadow point
@@ -63,12 +62,12 @@ class Shadow_obstacle:
 			shadow_projection = segment.get_shadow_projection(light)
 			if shadow_projection != None:
 				shadow_polygon_points = [
-					shadow_projection[0][0],
-					shadow_projection[1][0],
-					shadow_projection[1][1],
-					shadow_projection[0][1]
+					shadow_projection[0][0] - light.surface_position,
+					shadow_projection[1][0] - light.surface_position,
+					shadow_projection[1][1] - light.surface_position,
+					shadow_projection[0][1] - light.surface_position
 				]
-				pg.draw.polygon(surface, shadow_color, shadow_polygon_points)
+				pg.draw.polygon(surface, (0, 0, 0, 0), shadow_polygon_points)
 
 
 	def move(self, direction:pg.Vector2):

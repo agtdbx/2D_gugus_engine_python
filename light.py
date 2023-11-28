@@ -17,7 +17,7 @@ class Light:
 		range:float -> Radius of the light effect, in pixel
 		power:int -> Power of the light, [1, 255]
 		color:tuple[int, int, int] -> Color of the light
-		range_full_power:float -> Radius of a circle with full power of the light. Use for soft shadow
+		range_full_power:float -> Radius of a circle with full power of the light
 		radial_smooth_precision:int -> The precision of the light. More it is, more gradient you will have
 		"""
 		self.position = Vector2(position)
@@ -34,9 +34,9 @@ class Light:
 		self.surface_position = self.position - (self.surface_size / 2)
 		self._compute_light_surface()
 
-
 	def draw(self, light_surface:pg.Surface):
-		light_surface.blit(self.surface, self.surface_position)
+		# light_surface.blit(self.surface, self.surface_position)
+		light_surface.blit(self.surface, (0, 0))
 
 
 	def draw_source(self, light_surface:pg.Surface):

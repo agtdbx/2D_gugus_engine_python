@@ -45,7 +45,10 @@ class Segment:
 			(point, point_projected_by_shadow)
 		]
 		"""
-		direction_light_segment = (self.center - light.position).normalize()
+		try:
+			direction_light_segment = (self.center - light.position).normalize()
+		except:
+			return None
 		# If the light and the normal are in same direction, no shadow
 		if direction_light_segment.dot(self.normal) > 0:
 			return None
