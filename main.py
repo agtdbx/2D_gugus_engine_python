@@ -18,7 +18,7 @@ class Game:
 		self.screen = pg.display.set_mode(self.screen_size, pg.RESIZABLE)
 
 		self.clock = pg.time.Clock() # The clock be used to limit our fps
-		self.fps = 120
+		self.fps = -1
 
 		self.last = time.time()
 
