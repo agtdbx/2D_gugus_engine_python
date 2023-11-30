@@ -73,10 +73,9 @@ class Terrain:
 		# Apply shadow every where
 		pg.draw.rect(self.shadow_surface, shadow_color, shadow_rect)
 
+
 		# Compute lights surface
 		for i in range(len(self.lights)):
-			# self.lights_surface[i] = self.lights[i].surface.copy()
-
 			self.lights_surface[i].fill(shadow_color)
 			# Apply the light
 			self.lights[i].draw(self.lights_surface[i])
@@ -90,4 +89,3 @@ class Terrain:
 			blit_list.append((self.lights_surface[i], self.lights[i].surface_position, None, pg.BLEND_RGBA_MAX))
 
 		self.shadow_surface.blits(blit_list)
-

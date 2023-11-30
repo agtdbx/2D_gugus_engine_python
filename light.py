@@ -1,7 +1,6 @@
 import pygame as pg
 from pygame import Vector2
 
-
 class Light:
 	def __init__(
 			self,

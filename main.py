@@ -4,7 +4,6 @@ import pygame as pg
 from pygame import Vector2
 import time
 import sys
-
 class Game:
 	def __init__(self):
 		"""
@@ -79,7 +78,7 @@ class Game:
 		# We clean our screen with one color
 		self.screen.fill((0, 0, 0))
 		self.terrain.draw(self.screen)
-		pg.display.update()
+		pg.display.flip()
 
 
 	def quit(self):
@@ -90,5 +89,5 @@ class Game:
 		pg.quit()
 		sys.exit()
 
-
-Game().run() # Start game
+if __name__ == '__main__':
+	Game().run() # Start game

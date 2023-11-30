@@ -65,8 +65,8 @@ class Shadow_polygon:
 		if (light.position - self.position).length() - self.circle_arround_radius > light.total_range:
 			return
 		# Compute all shadow point
-		for i in range(len(self.segments)):
-			shadow_projection = self.segments[i].get_shadow_projection(light)
+		for seg in self.segments:
+			shadow_projection = seg.get_shadow_projection(light)
 			if shadow_projection != None:
 				pg.draw.polygon(surface, (0, 0, 0, 0), shadow_projection)
 
