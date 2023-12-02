@@ -1,9 +1,9 @@
-from light import Light
-from light_polygon import Light_polygon
-from shadow_polygon import Shadow_polygon
+from terrain.lightning.lights.LightCircle import LightCircle
+from terrain.lightning.lights.LightPolygon import LightPolygon
+from terrain.lightning.shadow.ShadowPolygon import ShadowPolygon
 
 import pygame as pg
-from pygame import Vector2
+from pygame import Vector2 as vec2
 
 
 class Terrain:
@@ -12,18 +12,18 @@ class Terrain:
 			size:tuple[int, int],
 			background_color:tuple[int, int, int, int]
 	) -> None:
-		self.size = Vector2(size)
+		self.size = vec2(size)
 		self.background_color = background_color
 
 		self.surface = pg.Surface(self.size, pg.SRCALPHA)
 
 		self.lights = []
-		self.lights.append(Light((320, 300), 400, 200, (255, 0, 0, 255)))
-		self.lights.append(Light_polygon((960, 300), [(-10, 0), (0, -10), (10, 0), (0, 10)], 400, 0, 200, (0, 255, 0, 255)))
-		self.lights.append(Light((1600, 300), 400, 200, (0, 0, 255, 255)))
-		self.lights.append(Light((320, 810), 400, 200, (255, 255, 0, 255)))
-		self.lights.append(Light_polygon((960, 810), [(-10, 0), (0, -10), (10, 0), (0, 10)], 400, 0, 200, (0, 255, 255, 255)))
-		self.lights.append(Light((1600, 810), 400, 200, (255, 0, 255, 255)))
+		# self.lights.append(LightCircle((320, 300), 0, 400, 200, (255, 0, 0)))
+		# self.lights.append(LightPolygon((960, 300), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 0)))
+		# self.lights.append(LightCircle((1600, 300), 0, 400, 200, (0, 0, 255)))
+		# self.lights.append(LightCircle((320, 810), 0, 400, 200, (255, 255, 0)))
+		# self.lights.append(LightPolygon((960, 810), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 255)))
+		# self.lights.append(LightCircle((1600, 810), 0, 400, 200, (255, 0, 255)))
 
 		self.lights_surface = []
 		for i in range(len(self.lights)):
@@ -33,13 +33,13 @@ class Terrain:
 		self.shadow_strengh = 230
 
 		self.shadow_polygons = []
-		for y in range(50, int(self.size.y), 100):
-			for x in range(50, int(self.size.x), 100):
-				self.shadow_polygons.append(Shadow_polygon(
-					(x, y),
-					[(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
-				))
-				#self.shadow_polygons.append(Shadow_polygon(
+		# for y in range(50, int(self.size.y), 100):
+		# 	for x in range(50, int(self.size.x), 100):
+		# 		self.shadow_polygons.append(ShadowPolygon(
+		# 			(x, y),
+		# 			[(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
+		# 		))
+				#self.shadow_polygons.append(ShadowPolygon(
 				#	(x, y),
 				#	[(-10, -20), (10, -20), (10, 20), (-10, 20)]
 				#))
@@ -64,7 +64,6 @@ class Terrain:
 
 		# Draw shadows
 		self._compute_light_and_shadow()
-		self.surface.blit(self.shadow_surface, (0, 0))
 
 
 	def _compute_light_and_shadow(self):
@@ -90,4 +89,7 @@ class Terrain:
 			blit_list.append((self.lights_surface[i], self.lights[i].surface_position, None, pg.BLEND_RGBA_MAX))
 
 		self.shadow_surface.blits(blit_list)
+
+		self.surface.blit(self.shadow_surface, (0, 0))
+
 

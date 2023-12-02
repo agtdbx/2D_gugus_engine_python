@@ -1,7 +1,7 @@
-from light import Light
+from terrain.lightning.lights.Light import Light
 
 import pygame as pg
-from pygame import Vector2
+from pygame import Vector2 as vec2
 
 
 class Segment:
@@ -12,8 +12,8 @@ class Segment:
 			width:int=2,
 			color:tuple[int, int, int]=(0, 0, 255)
 		) -> None:
-		self.start_point = Vector2(start_point)
-		self.end_point = Vector2(end_point)
+		self.start_point = vec2(start_point)
+		self.end_point = vec2(end_point)
 		self.width = width
 		self.color = pg.Color(color)
 
@@ -36,7 +36,7 @@ class Segment:
 		pg.draw.line(surface, color, self.center, self.center + self.normal * lenght, self.width)
 
 
-	def get_shadow_projection(self, light:Light) -> list[tuple[Vector2, Vector2]] | None:
+	def get_shadow_projection(self, light:Light) -> list[tuple[vec2, vec2]] | None:
 		"""
 		Calculate the point for create a shadow polygon
 		Return None if there is no shadow
@@ -47,7 +47,7 @@ class Segment:
 		"""
 		direction_light_segment = (self.center - light.position)
 		dist = direction_light_segment.length()
-		if dist == 0 or dist > light.total_range:
+		if dist == 0 or dist > light.effect_range:
 			return None
 		direction_light_segment /= dist
 		# If the light and the normal are in same direction, no shadow
@@ -65,7 +65,7 @@ class Segment:
 		distance_light_end = direction_light_end.length()
 		direction_light_end /= distance_light_end
 
-		length_of_projection = light.total_range - min(distance_light_start, distance_light_end)
+		length_of_projection = light.effect_range - min(distance_light_start, distance_light_end)
 
 		start_projection = start + direction_light_start * length_of_projection
 		end_projection = end + direction_light_end * length_of_projection
@@ -73,8 +73,8 @@ class Segment:
 		return [start, start_projection, end_projection, end]
 
 
-def get_normal_of_segment(start:Vector2, end:Vector2) -> Vector2:
+def get_normal_of_segment(start:vec2, end:vec2) -> vec2:
 	dx = end.x - start.x
 	dy = end.y - start.y
-	vec = Vector2(-dy, dx)
+	vec = vec2(-dy, dx)
 	return vec.normalize() * -1

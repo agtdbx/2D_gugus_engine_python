@@ -1,4 +1,4 @@
-from terrain import Terrain
+from terrain.Terrain import Terrain
 
 import pygame as pg
 from pygame import Vector2

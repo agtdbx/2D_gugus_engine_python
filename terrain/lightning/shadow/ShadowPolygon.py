@@ -1,11 +1,11 @@
-from light import Light
-from segment import Segment
+from terrain.lightning.lights.Light import Light
+from terrain.Segment import Segment
 
 import pygame as pg
-from pygame import Vector2
+from pygame import Vector2 as vec2
 
 
-class Shadow_polygon:
+class ShadowPolygon:
 	def __init__(
 			self,
 			position:tuple[float, float],
@@ -23,11 +23,11 @@ class Shadow_polygon:
 		color:tuple[int, int, int]=(0, 0, 150) -> the color of the polygon
 		outline_color:tuple[int, int, int]=(0, 0, 255) -> the color of the polygon's border
 		"""
-		self.position = Vector2(position)
+		self.position = vec2(position)
 		self.points = []
 		self.circle_arround_radius = 0
 		for point in points:
-			p = pg.Vector2(point)
+			p = vec2(point)
 			dist = p.length()
 			if dist > self.circle_arround_radius:
 				self.circle_arround_radius = dist
@@ -62,7 +62,7 @@ class Shadow_polygon:
 			light:Light
 		):
 		# Check if light is not too far
-		if (light.position - self.position).length() - self.circle_arround_radius > light.total_range:
+		if (light.position - self.position).length() - self.circle_arround_radius > light.effect_range:
 			return
 		# Compute all shadow point
 		for i in range(len(self.segments)):
@@ -71,14 +71,14 @@ class Shadow_polygon:
 				pg.draw.polygon(surface, (0, 0, 0, 0), shadow_projection)
 
 
-	def move(self, direction:pg.Vector2):
+	def move(self, direction:vec2):
 		self.position += direction
 		for i in range(self.number_of_points):
 			self.points[i] += direction
 		self._compute_segments()
 
 
-	def setPosition(self, position:pg.Vector2):
+	def setPosition(self, position:vec2):
 		moveDir = position - self.position
 		self.position = position
 		for i in range (len(self.points)):
