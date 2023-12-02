@@ -18,12 +18,12 @@ class Terrain:
 		self.surface = pg.Surface(self.size, pg.SRCALPHA)
 
 		self.lights = []
-		# self.lights.append(LightCircle((320, 300), 0, 400, 200, (255, 0, 0)))
-		# self.lights.append(LightPolygon((960, 300), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 0)))
-		# self.lights.append(LightCircle((1600, 300), 0, 400, 200, (0, 0, 255)))
-		# self.lights.append(LightCircle((320, 810), 0, 400, 200, (255, 255, 0)))
-		# self.lights.append(LightPolygon((960, 810), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 255)))
-		# self.lights.append(LightCircle((1600, 810), 0, 400, 200, (255, 0, 255)))
+		self.lights.append(LightCircle((320, 300), 0, 400, 200, (255, 0, 0)))
+		self.lights.append(LightPolygon((960, 300), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 0)))
+		self.lights.append(LightCircle((1600, 300), 0, 400, 200, (0, 0, 255)))
+		self.lights.append(LightCircle((320, 810), 0, 400, 200, (255, 255, 0)))
+		self.lights.append(LightPolygon((960, 810), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 255)))
+		self.lights.append(LightCircle((1600, 810), 0, 400, 200, (255, 0, 255)))
 
 		self.lights_surface = []
 		for i in range(len(self.lights)):
@@ -33,12 +33,12 @@ class Terrain:
 		self.shadow_strengh = 230
 
 		self.shadow_polygons = []
-		# for y in range(50, int(self.size.y), 100):
-		# 	for x in range(50, int(self.size.x), 100):
-		# 		self.shadow_polygons.append(ShadowPolygon(
-		# 			(x, y),
-		# 			[(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
-		# 		))
+		for y in range(50, int(self.size.y), 100):
+			for x in range(50, int(self.size.x), 100):
+				self.shadow_polygons.append(ShadowPolygon(
+					(x, y),
+					[(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
+				))
 				#self.shadow_polygons.append(ShadowPolygon(
 				#	(x, y),
 				#	[(-10, -20), (10, -20), (10, 20), (-10, 20)]
@@ -72,10 +72,9 @@ class Terrain:
 		# Apply shadow every where
 		pg.draw.rect(self.shadow_surface, shadow_color, shadow_rect)
 
+
 		# Compute lights surface
 		for i in range(len(self.lights)):
-			# self.lights_surface[i] = self.lights[i].surface.copy()
-
 			self.lights_surface[i].fill(shadow_color)
 			# Apply the light
 			self.lights[i].draw(self.lights_surface[i])

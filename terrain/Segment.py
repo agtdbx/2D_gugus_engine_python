@@ -3,7 +3,6 @@ from terrain.lightning.lights.Light import Light
 import pygame as pg
 from pygame import Vector2 as vec2
 
-
 class Segment:
 	def __init__(
 			self,
@@ -70,7 +69,7 @@ class Segment:
 		start_projection = start + direction_light_start * length_of_projection
 		end_projection = end + direction_light_end * length_of_projection
 
-		return [start, start_projection, end_projection, end]
+		return (start, start_projection, end_projection, end)
 
 
 def get_normal_of_segment(start:vec2, end:vec2) -> vec2:
