@@ -40,6 +40,7 @@ class Light(ABC):
 			self.radial_smooth_precision = self.outer
 
 		self.effect_range = self.inner + self.outer
+		self.effect_range_squared = self.effect_range ** 2
 
 
 	def draw(self, light_surface:pg.Surface):

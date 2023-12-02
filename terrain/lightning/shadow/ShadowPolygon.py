@@ -34,6 +34,8 @@ class ShadowPolygon:
 			self.points.append(p + self.position)
 		self.number_of_points = len(self.points)
 
+		self.circle_arround_radius_squared = self.circle_arround_radius ** 2
+
 		self.color = pg.Color(color)
 		self.outline_color = pg.Color(outline_color)
 
@@ -62,7 +64,7 @@ class ShadowPolygon:
 			light:Light
 		):
 		# Check if light is not too far
-		if (light.position - self.position).length() - self.circle_arround_radius > light.effect_range:
+		if (light.position - self.position).length_squared() - self.circle_arround_radius_squared > light.effect_range_squared:
 			return
 		# Compute all shadow point
 		for seg in self.segments:

@@ -2,6 +2,7 @@ from terrain.lightning.lights.Light import Light
 
 import pygame as pg
 from pygame import Vector2 as vec2
+import math
 
 class Segment:
 	def __init__(
@@ -45,9 +46,10 @@ class Segment:
 		]
 		"""
 		direction_light_segment = (self.center - light.position)
-		dist = direction_light_segment.length()
-		if dist == 0 or dist > light.effect_range:
+		dist = direction_light_segment.length_squared()
+		if dist == 0 or dist > light.effect_range_squared:
 			return None
+		dist = math.sqrt(dist)
 		direction_light_segment /= dist
 		# If the light and the normal are in same direction, no shadow
 		if direction_light_segment.dot(self.normal) > 0:
