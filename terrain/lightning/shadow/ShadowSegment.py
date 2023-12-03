@@ -2,6 +2,7 @@
 #                                Import files                                #
 ##############################################################################
 from terrain.lightning.lights.Light import Light
+from engine_math.functions import get_normal_of_segment
 
 
 ##############################################################################
@@ -15,7 +16,7 @@ import math
 ##############################################################################
 #                                Class Segment                               #
 ##############################################################################
-class Segment:
+class ShadowSegment:
     def __init__(
             self,
             start_point:tuple[float, float],
@@ -82,12 +83,3 @@ class Segment:
 
         return (start, start_projection, end_projection, end)
 
-
-##############################################################################
-#                                  Functions                                 #
-##############################################################################
-def get_normal_of_segment(start:vec2, end:vec2) -> vec2:
-    dx = end.x - start.x
-    dy = end.y - start.y
-    vec = vec2(-dy, dx)
-    return vec.normalize() * -1

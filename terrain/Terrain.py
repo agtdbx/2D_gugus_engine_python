@@ -40,10 +40,10 @@ class Terrain:
             (800, 450),
             [(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
         ))
-        self.shadows.append(ShadowRectangle(
-            (900, 450),
-            (30, 10)
-        ))
+        # self.shadows.append(ShadowRectangle(
+        #     (900, 450),
+        #     (30, 10)
+        # ))
         # for y in range(50, int(self.size.y), 100):
         #     for x in range(50, int(self.size.x), 100):
         #         self.shadows.append(ShadowPolygon(
@@ -58,7 +58,7 @@ class Terrain:
 
     def update(self, delta):
         for shadow_polygon in self.shadows:
-            shadow_polygon.rotate(45 * delta)
+            shadow_polygon.rotate(10 * delta)
         self._updateDraw()
 
 
@@ -82,7 +82,6 @@ class Terrain:
         shadow_rect = (0, 0, self.size.x, self.size.y)
         # Apply shadow every where
         pg.draw.rect(self.shadow_surface, shadow_color, shadow_rect)
-
 
         # Compute lights surface
         for i in range(len(self.lights)):

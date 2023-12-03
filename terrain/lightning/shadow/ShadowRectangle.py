@@ -1,8 +1,7 @@
 ##############################################################################
 #                                Import files                                #
 ##############################################################################
-from terrain.lightning.shadow.Shadow import Shadow, Light, Segment
-
+from terrain.lightning.shadow.ShadowPolygon import ShadowPolygon, Light
 
 ##############################################################################
 #                              Import librairies                             #
@@ -12,9 +11,9 @@ from pygame import Vector2 as vec2
 
 
 ##############################################################################
-#                              Class ShadowRectangle                           #
+#                             Class ShadowRectangle                          #
 ##############################################################################
-class ShadowRectangle(Shadow):
+class ShadowRectangle(ShadowPolygon):
     def __init__(
             self,
             position:tuple[float, float],
@@ -39,28 +38,3 @@ class ShadowRectangle(Shadow):
             points,
             degree,
         )
-
-
-    def draw(self, surface:pg.Surface, color:tuple[int, int, int]):
-        """
-        Method to draw the shadow's shape for debuging
-        """
-        pg.draw.polygon(surface, color, self.points)
-
-
-    def draw_shadow(
-            self,
-            surface:pg.Surface,
-            light:Light
-        ):
-        """
-        Method to draw the shadow on the light surface, to change light effect shape
-        """
-        # Check if light is not too far
-        if (light.position - self.position).length_squared() - self.circle_arround_radius_squared > light.effect_range_squared:
-            return
-        # Compute all shadow point
-        for seg in self.segments:
-            shadow_projection = seg.get_shadow_projection(light)
-            if shadow_projection != None:
-                pg.draw.polygon(surface, (0, 0, 0, 0), shadow_projection)
