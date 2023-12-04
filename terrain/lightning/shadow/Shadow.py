@@ -2,7 +2,7 @@
 #                                Import files                                #
 ##############################################################################
 from terrain.lightning.lights.Light import Light
-from terrain.lightning.shadow.ShadowSegment import ShadowSegment
+from engine_math.Segment import Segment
 
 
 ##############################################################################
@@ -11,6 +11,7 @@ from terrain.lightning.shadow.ShadowSegment import ShadowSegment
 import pygame as pg
 from pygame import Vector2 as vec2
 from abc import ABC, abstractmethod
+import math
 
 
 ##############################################################################
@@ -86,3 +87,43 @@ class Shadow(ABC):
         Method to rotate the shadow by degrees
         """
         pass
+
+
+def segment_shadow_projection(
+        segment:Segment,
+        light:Light) -> list[tuple[vec2, vec2]] | None:
+    """
+    Calculate the point for create a shadow polygon
+    Return None if there is no shadow
+    Return the list of tupple of point. Like this :
+    [
+        (point, point_projected_by_shadow)
+    ]
+    """
+    direction_light_segment = segment.center - light.position
+    dist = direction_light_segment.length_squared()
+    if dist == 0 or dist > light.effect_range_squared:
+        return None
+    dist = math.sqrt(dist)
+    direction_light_segment /= dist
+    # If the light and the normal are in same direction, no shadow
+    if direction_light_segment.dot(segment.normal) > 0:
+        return None
+
+    start = segment.start_point - light.surface_position
+    end = segment.end_point - light.surface_position
+
+    direction_light_start = segment.start_point - light.position
+    distance_light_start = direction_light_start.length()
+    direction_light_start /= distance_light_start
+
+    direction_light_end = segment.end_point - light.position
+    distance_light_end = direction_light_end.length()
+    direction_light_end /= distance_light_end
+
+    length_of_projection = light.effect_range - min(distance_light_start, distance_light_end)
+
+    start_projection = start + direction_light_start * length_of_projection
+    end_projection = end + direction_light_end * length_of_projection
+
+    return (start, start_projection, end_projection, end)

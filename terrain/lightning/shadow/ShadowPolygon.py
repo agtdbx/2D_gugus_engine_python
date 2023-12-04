@@ -1,7 +1,7 @@
 ##############################################################################
 #                                Import files                                #
 ##############################################################################
-from terrain.lightning.shadow.Shadow import Shadow, Light, ShadowSegment
+from terrain.lightning.shadow.Shadow import Shadow, Light, Segment, segment_shadow_projection
 from engine_math.functions import get_normal_of_segment, clockwise_sort, get_angle
 
 
@@ -100,28 +100,10 @@ class ShadowPolygon(Shadow):
             return
         # Compute all shadow point
         for seg in self.segments:
-            shadow_projection = seg.get_shadow_projection(light)
+            shadow_projection = segment_shadow_projection(seg, light)
+
             if shadow_projection != None:
                 pg.draw.polygon(surface, (0, 0, 0, 0), shadow_projection)
-
-        # points = []
-        # points_proj = []
-        # for seg in self.segments:
-        #     shadow_projection = seg.get_shadow_projection(light)
-        #     if shadow_projection != None:
-        #         if shadow_projection[0] not in points:
-        #             points.append(shadow_projection[0])
-        #         if shadow_projection[3] not in points:
-        #             points.append(shadow_projection[3])
-        #         if shadow_projection[1] not in points_proj:
-        #             points_proj.append(shadow_projection[1])
-        #         if shadow_projection[2] not in points_proj:
-        #             points_proj.append(shadow_projection[2])
-        # points_proj.reverse()
-        # points.extend(points_proj)
-        # pg.draw.polygon(surface, (0, 0, 0, 0), points)
-        # for p in points:
-        #     pg.draw.circle(surface, (255, 255, 255), p, 2)
 
 
     def rotate(self, degrees:float):
@@ -165,4 +147,4 @@ class ShadowPolygon(Shadow):
         for i in range(self.number_of_points):
             p1 = self.points[i - 1]
             p2 = self.points[i]
-            self.segments.append(ShadowSegment(p1, p2))
+            self.segments.append(Segment(p1, p2))

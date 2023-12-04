@@ -1,7 +1,7 @@
 ##############################################################################
 #                                Import files                                #
 ##############################################################################
-from terrain.lightning.shadow.ShadowPolygon import ShadowPolygon, Light
+from terrain.lightning.shadow.ShadowPolygon import ShadowPolygon
 
 ##############################################################################
 #                              Import librairies                             #
