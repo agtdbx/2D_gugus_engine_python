@@ -36,10 +36,10 @@ class Terrain:
         self.shadow_strengh = 230
 
         self.shadows = []
-        self.shadows.append(ShadowPolygon(
-            (800, 450),
-            [(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
-        ))
+        #self.shadows.append(ShadowPolygon(
+        #    (800, 450),
+        #    [(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
+        #))
         # self.shadows.append(ShadowRectangle(
         #     (900, 450),
         #     (30, 10)
