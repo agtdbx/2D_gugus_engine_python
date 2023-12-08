@@ -30,6 +30,7 @@ class Light(ABC):
         Abstract class to represente Lights.
         """
         self.position = vec2(position)
+        self.position_into_surface = vec2(0, 0)
         self.inner = inner
         self.outer = outer
         self.power = power
@@ -53,7 +54,8 @@ class Light(ABC):
     def _create_surface(self, surface_size):
         self.surface_size = surface_size
         self.surface = pg.Surface(self.surface_size, pg.SRCALPHA)
-        self.surface_position = self.position - (self.surface_size / 2)
+        self.position_into_surface = self.surface_size / 2
+        self.surface_position = self.position - self.position_into_surface
 
 
     @abstractmethod
