@@ -99,9 +99,9 @@ class ShadowPolygon(Shadow):
         if (light.position - self.position).length_squared() - self.circle_arround_radius_squared > light.effect_range_squared:
             return
         # Compute all shadow point
-        compute_points = []
+        previous_compute_info = None
         for seg in self.segments:
-            shadow_projection = segment_shadow_projection(seg, light, compute_points)
+            shadow_projection = segment_shadow_projection(seg, light, previous_compute_info)
 
             if shadow_projection != None:
                 pg.draw.polygon(surface, (0, 0, 0, 0), shadow_projection)
