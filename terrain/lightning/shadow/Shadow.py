@@ -89,9 +89,40 @@ class Shadow(ABC):
         pass
 
 
+##############################################################################
+#                                  Functions                                 #
+##############################################################################
+def get_index_of_precompute_points(
+        compute_points:list[tuple[vec2, vec2, float]],
+        start:vec2,
+        end:vec2
+        ) -> tuple[int, int]:
+    """
+    Return the index of start and end point.
+    If the point isn't in the list, return -1 instead of the index
+    """
+    start_index = -1
+    end_index = -1
+
+    for i in range(len(compute_points)):
+        point, _, _ = compute_points[i]
+        if point == start:
+            start_index = i
+            if end_index != -1:
+                break
+        if point == end:
+            end_index = i
+            if start_index != -1:
+                break
+
+    return (start_index, end_index)
+
+
 def segment_shadow_projection(
         segment:Segment,
-        light:Light) -> list[tuple[vec2, vec2]] | None:
+        light:Light,
+        compute_points:list[tuple[vec2, vec2, float]],
+        ) -> list[tuple[vec2, vec2]] | None:
     """
     Calculate the point for create a shadow polygon
     Return None if there is no shadow
@@ -110,20 +141,41 @@ def segment_shadow_projection(
     if direction_light_segment.dot(segment.normal) > 0:
         return None
 
+    # Compute point position in light surface position as origin
     start = segment.start_point - light.surface_position
     end = segment.end_point - light.surface_position
 
-    direction_light_start = segment.start_point - light.position
-    distance_light_start = direction_light_start.length()
-    direction_light_start /= distance_light_start
 
-    direction_light_end = segment.end_point - light.position
-    distance_light_end = direction_light_end.length()
-    direction_light_end /= distance_light_end
+    start_index, end_index = get_index_of_precompute_points(compute_points, start, end)
+
+    if start_index == -1:
+        start_projection = None
+        direction_light_start = segment.start_point - light.position
+        distance_light_start = direction_light_start.length()
+        direction_light_start /= distance_light_start
+    else:
+        start_projection = compute_points[start_index][1]
+        distance_light_start = compute_points[start_index][2]
+
+    if end_index == -1:
+        end_projection = None
+        direction_light_end = segment.end_point - light.position
+        distance_light_end = direction_light_end.length()
+        direction_light_end /= distance_light_end
+    else:
+        end_projection = compute_points[end_index][1]
+        distance_light_end = compute_points[end_index][2]
+
 
     length_of_projection = light.effect_range - min(distance_light_start, distance_light_end)
 
-    start_projection = start + direction_light_start * length_of_projection
-    end_projection = end + direction_light_end * length_of_projection
+    # Compute start point projection if it's not already compute, and insert it in compute list
+    if start_projection == None:
+        start_projection = start + direction_light_start * length_of_projection
+        compute_points.append((start, start_projection, distance_light_start))
+    # Compute end point projection if it's not already compute, and insert it in compute list
+    if end_projection == None:
+        end_projection = end + direction_light_end * length_of_projection
+        compute_points.append((end, end_projection, distance_light_end))
 
     return (start, start_projection, end_projection, end)
