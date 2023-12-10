@@ -89,6 +89,65 @@ class Shadow(ABC):
         pass
 
 
+    @staticmethod
+    def drawShadow(surface:pg.Surface, points:list[tuple[vec2, vec2] | None]):
+        """
+        surface:pg.Surface -> surface to draw shadow on it
+        points:list[tuple[vec2, vec2] | None] -> list of point to draw shadown polygon
+
+        points format :
+            [proj_soft_left, proj_hard_left, proj_hard_right, proj_soft_right]
+            proj_min = start of soft shadow
+            proj_max = start of hard shadow
+        proj format:
+            (point, projection of point) or None if not exist
+        """
+        proj_soft_left = points[0]
+        proj_hard_left = points[1]
+        proj_hard_right = points[2]
+        proj_soft_right = points[3]
+
+        # Draw hard shadow
+        pg.draw.polygon(surface, (0, 0, 0, 0), [proj_hard_left[0], proj_hard_left[1], proj_hard_right[1], proj_hard_right[0]])
+
+        # Draw soft shadow
+        if proj_soft_left != None and proj_soft_right != None:
+            surface_soft_shadow = surface.copy()
+            surface_soft_shadow.fill((255, 255, 255, 255))
+
+            left_min_max = proj_soft_left[2] - proj_soft_left[1]
+            number_of_lign_left = int(left_min_max.length()) + 1
+            move_vec = left_min_max / number_of_lign_left
+            alpha_minus = 255 / number_of_lign_left
+            alpha = 255
+            end_point = proj_soft_left[1]
+            for _ in range(number_of_lign_left):
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point)
+                end_point += move_vec
+                alpha = max(0, alpha - alpha_minus)
+
+            right_min_max = proj_soft_right[2] - proj_soft_right[1]
+            number_of_lign_right = int(right_min_max.length()) + 1
+            move_vec = right_min_max / number_of_lign_right
+            alpha_minus = 255 / number_of_lign_right
+            alpha = 255
+            end_point = proj_soft_right[1]
+            for _ in range(number_of_lign_right):
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point)
+                end_point += move_vec
+                alpha = max(0, alpha - alpha_minus)
+
+            # In case of shadow cross
+            if proj_soft_left[2] != proj_hard_left[1]:
+                right_min_max_test = proj_soft_left[2] - proj_soft_right[1]
+                length = int(right_min_max_test.length()) + 1
+                alpha = max(0, 255 - (alpha_minus * (number_of_lign_right - length)))
+                pg.draw.polygon(surface_soft_shadow, (255, 255, 255, int(alpha)), [proj_hard_left[1], proj_soft_left[2], proj_soft_right[2]])
+
+            surface.blit(surface_soft_shadow, (0, 0), None, pg.BLEND_RGBA_MULT)
+            pass
+
+
 ##############################################################################
 #                                  Functions                                 #
 ##############################################################################
@@ -115,10 +174,11 @@ def segment_shadow_projection(
     if direction_light_segment.dot(segment.normal) > 0:
         return None
 
+    # In case of hard shadow
+
     # Compute point position in light surface position as origin
     start = segment.start_point - light.surface_position
     end = segment.end_point - light.surface_position
-
 
     if previous_compute_info != None and previous_compute_info[0] == start:
         start_projection = previous_compute_info[1]
@@ -143,4 +203,11 @@ def segment_shadow_projection(
     end_projection = end + direction_light_end * length_of_projection
     previous_compute_info = (end, end_projection, distance_light_end)
 
-    return (start, start_projection, end_projection, end)
+    shadow_points = [
+        None,
+        (end, end_projection),
+        (start, start_projection),
+        None
+    ]
+
+    return shadow_points

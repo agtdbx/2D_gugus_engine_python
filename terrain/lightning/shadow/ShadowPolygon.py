@@ -104,7 +104,7 @@ class ShadowPolygon(Shadow):
             shadow_projection = segment_shadow_projection(seg, light, previous_compute_info)
 
             if shadow_projection != None:
-                pg.draw.polygon(surface, (0, 0, 0, 0), shadow_projection)
+                self.drawShadow(surface, shadow_projection)
 
 
     def rotate(self, degrees:float):

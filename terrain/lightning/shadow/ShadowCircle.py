@@ -3,6 +3,7 @@
 ##############################################################################
 from terrain.lightning.shadow.Shadow import Shadow, Light
 from engine_math.functions import get_normal_of_segment
+from engine_math.Segment import Segment
 
 
 ##############################################################################
@@ -69,25 +70,69 @@ class ShadowCircle(Shadow):
 
         # Compute values for projection
         position = self.position - light.surface_position
-        move_vec = get_normal_of_segment(self.position, light.position) * self.radius
+        normal = get_normal_of_segment(self.position, light.position)
+        move_vec = normal * self.radius
         distance_from_light = math.sqrt(distance_from_light)
         shadow_lenght = light.effect_range - distance_from_light
-
         # Compute points for projection
-        point_1 = position + move_vec
-        point_2 = position - move_vec
+        point_right = position + move_vec
+        point_left = position - move_vec
 
-        # Compute first point projection
-        dir_point_1_light = (point_1 - light.position_into_surface).normalize()
-        projection_point_1 = point_1 + dir_point_1_light * shadow_lenght
+        # In case of hard shadow only
+        if light.inner <= 1:
+            # Compute left point projection
+            dir_point_left_light = (point_left - light.position_into_surface).normalize()
+            projection_point_left = point_left + dir_point_left_light * shadow_lenght
 
-        # Compute second point projection
-        dir_point_2_light = (point_2 - light.position_into_surface).normalize()
-        projection_point_2 = point_2 + dir_point_2_light * shadow_lenght
+            # Compute right point projection
+            dir_point_right_light = (point_right - light.position_into_surface).normalize()
+            projection_point_right = point_right + dir_point_right_light * shadow_lenght
+
+            # Creation shadow_points
+            shadow_points = [
+                None,
+                (point_left, projection_point_left),
+                (point_right, projection_point_right),
+                None
+            ]
+
+        # In case of soft shadow
+        else:
+            left_light_pos = light.position_into_surface - normal * light.inner
+            right_light_pos = light.position_into_surface + normal * light.inner
+
+            # Compute left points projection
+            dir_point_left_light_min = (point_left - right_light_pos).normalize()
+            dir_point_left_light_max = (point_left - left_light_pos).normalize()
+            projection_point_left_min = point_left + dir_point_left_light_min * shadow_lenght
+            projection_point_left_max = point_left + dir_point_left_light_max * light.effect_range
+
+            # Compute right point projection
+            dir_point_right_light_min = (point_right - left_light_pos).normalize()
+            dir_point_right_light_max = (point_right - right_light_pos).normalize()
+            projection_point_right_min = point_right + dir_point_right_light_min * shadow_lenght
+            projection_point_right_max = point_right + dir_point_right_light_max * light.effect_range
+
+            seg_left = Segment(point_left, projection_point_left_max)
+            collide_res = seg_left.collide_with_segment(point_right, projection_point_right_max)
+            if collide_res[0]:
+                hard_projection_point_left = collide_res[1]
+                hard_projection_point_right = collide_res[1]
+            else:
+                hard_projection_point_left = projection_point_left_max
+                hard_projection_point_right = projection_point_right_max
+
+            # Creation shadow_points
+            shadow_points = [
+                (point_left, projection_point_left_min, projection_point_left_max),
+                (point_left, hard_projection_point_left),
+                (point_right, hard_projection_point_right),
+                (point_right, projection_point_right_min, projection_point_right_max)
+            ]
 
         # Draw the shadow
         pg.draw.circle(surface, (0, 0, 0, 0), position, self.radius)
-        pg.draw.polygon(surface, (0, 0, 0, 0), [point_1, projection_point_1, projection_point_2, point_2])
+        self.drawShadow(surface, shadow_points)
 
 
     def rotate(self, degrees:float):

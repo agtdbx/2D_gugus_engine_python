@@ -27,11 +27,11 @@ class Terrain:
         # self.lights.append(LightPolygon((960, 810), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 255)))
         # self.lights.append(LightCircle((1600, 810), 0, 400, 200, (255, 0, 255)))
 
-        self.lights.append(LightCircle((960, 540), 0, 400, 200, (0, 255, 255)))
+        self.lights.append(LightCircle((960, 540), 50, 350, 200, (0, 255, 255)))
 
         self.lights_surface = []
         for i in range(len(self.lights)):
-            self.lights_surface.append(self.lights[i].surface.copy())
+            self.lights_surface.append(pg.Surface(self.lights[i].surface_size, pg.SRCALPHA))
 
         self.shadow_surface = pg.Surface(self.size, pg.SRCALPHA)
         self.shadow_strengh = 230
@@ -60,8 +60,8 @@ class Terrain:
 
 
     def update(self, delta):
-        for shadow_polygon in self.shadows:
-            shadow_polygon.rotate(45 * delta)
+        # for shadow_polygon in self.shadows:
+        #     shadow_polygon.rotate(45 * delta)
         self._updateDraw()
 
 
@@ -88,7 +88,7 @@ class Terrain:
 
         # Compute lights surface
         for i in range(len(self.lights)):
-            self.lights_surface[i].fill(shadow_color)
+            self.lights_surface[i].fill((0, 0, 0, 0))
             # Apply the light
             self.lights[i].draw(self.lights_surface[i])
             # Apply the shadows
@@ -98,7 +98,7 @@ class Terrain:
         # Blit all surfaces
         blit_list = []
         for i in range(len(self.lights_surface)):
-            blit_list.append((self.lights_surface[i], self.lights[i].surface_position, None, pg.BLEND_RGBA_MAX))
+            blit_list.append((self.lights_surface[i], self.lights[i].surface_position, None))
 
         self.shadow_surface.blits(blit_list)
 
