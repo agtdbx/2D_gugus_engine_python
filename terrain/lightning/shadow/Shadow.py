@@ -122,7 +122,7 @@ class Shadow(ABC):
             alpha = 255
             end_point = proj_soft_left[1]
             for _ in range(number_of_lign_left):
-                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point)
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point, 2)
                 end_point += move_vec
                 alpha = max(0, alpha - alpha_minus)
 
@@ -133,16 +133,30 @@ class Shadow(ABC):
             alpha = 255
             end_point = proj_soft_right[1]
             for _ in range(number_of_lign_right):
-                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point)
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point, 2)
                 end_point += move_vec
                 alpha = max(0, alpha - alpha_minus)
 
             # In case of shadow cross
             if proj_soft_left[2] != proj_hard_left[1]:
-                right_min_max_test = proj_soft_left[2] - proj_soft_right[1]
-                length = int(right_min_max_test.length()) + 1
+                left_point = proj_soft_left[1].copy()
+                right_point = proj_soft_right[1].copy()
+                move_vec_left = proj_hard_left[1] -  proj_soft_left[2]
+                move_vec_right = proj_hard_right[1] - proj_soft_right[2]
+
+                length = int(move_vec_left.length()) + 1
+                move_vec_left /= length
+                move_vec_right /= length
+
                 alpha = max(0, 255 - (alpha_minus * (number_of_lign_right - length)))
-                pg.draw.polygon(surface_soft_shadow, (255, 255, 255, int(alpha)), [proj_hard_left[1], proj_soft_left[2], proj_soft_right[2]])
+                alpha_minus = alpha / length
+                for _ in range(length):
+                    print(alpha)
+                    pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), left_point, right_point, 2)
+                    left_point += move_vec_left
+                    right_point += move_vec_right
+                    alpha = max(0, alpha - alpha_minus)
+                # pg.draw.polygon(surface_soft_shadow, (255, 255, 255, int(alpha)), [proj_hard_left[1], proj_soft_left[2], proj_soft_right[2]])
 
             surface.blit(surface_soft_shadow, (0, 0), None, pg.BLEND_RGBA_MULT)
             pass
