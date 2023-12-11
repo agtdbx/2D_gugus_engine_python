@@ -116,25 +116,19 @@ class Shadow(ABC):
             surface_soft_shadow.fill((255, 255, 255, 255))
 
             left_min_max = proj_soft_left[2] - proj_soft_left[1]
+            right_min_max = proj_soft_right[2] - proj_soft_right[1]
             number_of_lign_left = int(left_min_max.length()) + 1
-            move_vec = left_min_max / number_of_lign_left
+            move_vec_left = left_min_max / number_of_lign_left
+            move_vec_right = right_min_max / number_of_lign_left
             alpha_minus = 255 / number_of_lign_left
             alpha = 255
-            end_point = proj_soft_left[1]
+            end_point_left = proj_soft_left[1]
+            end_point_right = proj_soft_right[1]
             for _ in range(number_of_lign_left):
-                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point, 2)
-                end_point += move_vec
-                alpha = max(0, alpha - alpha_minus)
-
-            right_min_max = proj_soft_right[2] - proj_soft_right[1]
-            number_of_lign_right = int(right_min_max.length()) + 1
-            move_vec = right_min_max / number_of_lign_right
-            alpha_minus = 255 / number_of_lign_right
-            alpha = 255
-            end_point = proj_soft_right[1]
-            for _ in range(number_of_lign_right):
-                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point, 2)
-                end_point += move_vec
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point_left, 2)
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point_right, 2)
+                end_point_left += move_vec_left
+                end_point_right += move_vec_right
                 alpha = max(0, alpha - alpha_minus)
 
             # In case of shadow cross
@@ -148,10 +142,9 @@ class Shadow(ABC):
                 move_vec_left /= length
                 move_vec_right /= length
 
-                alpha = max(0, 255 - (alpha_minus * (number_of_lign_right - length)))
+                alpha = max(0, 255 - (alpha_minus * (number_of_lign_left - length)))
                 alpha_minus = alpha / length
                 for _ in range(length):
-                    print(alpha)
                     pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), left_point, right_point, 2)
                     left_point += move_vec_left
                     right_point += move_vec_right

@@ -28,6 +28,7 @@ class Terrain:
         # self.lights.append(LightCircle((1600, 810), 0, 400, 200, (255, 0, 255)))
 
         self.lights.append(LightCircle((960, 540), 50, 350, 200, (0, 255, 255)))
+        # self.lights.append(LightCircle((960, 540), 0, 400, 200, (0, 255, 255)))
 
         self.lights_surface = []
         for i in range(len(self.lights)):
