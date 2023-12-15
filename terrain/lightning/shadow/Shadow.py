@@ -3,6 +3,7 @@
 ##############################################################################
 from terrain.lightning.lights.Light import Light
 from engine_math.Segment import Segment
+from engine_math.functions import get_normal_of_segment
 
 
 ##############################################################################
@@ -146,7 +147,7 @@ class Shadow(ABC):
                 alpha = max(0, 255 - (alpha_minus * (number_of_lign_left - length)))
                 alpha_minus = alpha / length
                 for _ in range(length):
-                    pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), left_point, right_point, 2)
+                    pg.draw.line(surface_soft_shadow, (255, 255, 255, min(255, int(alpha))), left_point, right_point, 2)
                     left_point += move_vec_left
                     right_point += move_vec_right
                     alpha = max(0, alpha - alpha_minus)
@@ -173,54 +174,106 @@ def segment_shadow_projection(
         (point, point_projected_by_shadow)
     ]
     """
-    direction_light_segment = segment.center - light.position
+    direction_light_segment = light.position - segment.center
     dist = direction_light_segment.length_squared()
     if dist == 0 or dist > light.effect_range_squared:
         return None
+
     dist = math.sqrt(dist)
+    length_of_projection = (light.effect_range - dist) * 1.2
     direction_light_segment /= dist
     # If the light and the normal are in same direction, no shadow
     if invert:
-        if direction_light_segment.dot(segment.normal) < 0:
-            return None
-    else:
         if direction_light_segment.dot(segment.normal) > 0:
             return None
-
-    # In case of hard shadow
+    else:
+        if direction_light_segment.dot(segment.normal) < 0:
+            return None
 
     # Compute point position in light surface position as origin
     start = segment.start_point - light.surface_position
     end = segment.end_point - light.surface_position
 
-    if previous_compute_info != None and previous_compute_info[0] == start:
-        start_projection = previous_compute_info[1]
-        distance_light_start = previous_compute_info[2]
-    else:
-        start_projection = None
-        direction_light_start = segment.start_point - light.position
-        distance_light_start = direction_light_start.length()
-        direction_light_start /= distance_light_start
+    # In case of hard shadow
+    if light.inner == 0:
+        if previous_compute_info != None and previous_compute_info[0] == start:
+            start_projection = previous_compute_info[1]
+            distance_light_start = previous_compute_info[2]
+        else:
+            start_projection = None
+            direction_light_start = segment.start_point - light.position
+            distance_light_start = direction_light_start.length()
+            direction_light_start /= distance_light_start
 
-    end_projection = None
-    direction_light_end = segment.end_point - light.position
-    distance_light_end = direction_light_end.length()
-    direction_light_end /= distance_light_end
+        end_projection = None
+        direction_light_end = segment.end_point - light.position
+        distance_light_end = direction_light_end.length()
+        direction_light_end /= distance_light_end
 
-    length_of_projection = light.effect_range - min(distance_light_start, distance_light_end)
+        length_of_projection = light.effect_range - min(distance_light_start, distance_light_end)
 
-    # Compute start point projection if it's not already compute, and insert it in compute list
-    if start_projection == None:
-        start_projection = start + direction_light_start * length_of_projection
+        # Compute start point projection if it's not already compute, and insert it in compute list
+        if start_projection == None:
+            start_projection = start + direction_light_start * length_of_projection
+        # Compute end point projection
+        end_projection = end + direction_light_end * length_of_projection
+        previous_compute_info = (end, end_projection, distance_light_end)
+
+        shadow_points = [
+            None,
+            (end, end_projection),
+            (start, start_projection),
+            None
+        ]
+
+        return shadow_points
+
+    # Soft shadow
+    normal = get_normal_of_segment(segment.center, light.position)
+    left_light_pos = light.position_into_surface - normal * light.inner
+    right_light_pos = light.position_into_surface + normal * light.inner
+
+    # Compute start projections
+    direction_light_start_min = start - left_light_pos
+    distance_light_start_min = direction_light_start_min.length()
+    direction_light_start_min /= distance_light_start_min
+
+    direction_light_start_max = start - right_light_pos
+    distance_light_start_max = direction_light_start_max.length()
+    direction_light_start_max /= distance_light_start_max
+
+    # Compute end projections
+    direction_light_end_min = end - right_light_pos
+    distance_light_end_min = direction_light_end_min.length()
+    direction_light_end_min /= distance_light_end_min
+
+    direction_light_end_max = end - left_light_pos
+    distance_light_end_max = direction_light_end_max.length()
+    direction_light_end_max /= distance_light_end_max
+
+    # Compute starts point projection
+    start_projection_min = start + direction_light_start_min * length_of_projection
+    start_projection_max = start + direction_light_start_max * length_of_projection
     # Compute end point projection
-    end_projection = end + direction_light_end * length_of_projection
-    previous_compute_info = (end, end_projection, distance_light_end)
+    end_projection_min = end + direction_light_end_min * length_of_projection
+    end_projection_max = end + direction_light_end_max * length_of_projection
+
+    seg_left = Segment(end, end_projection_max)
+    collide_res = seg_left.collide_with_segment(start, start_projection_max)
+    if collide_res[0]:
+        hard_projection_point_left = collide_res[1]
+        hard_projection_point_right = collide_res[1]
+    else:
+        hard_projection_point_left = end_projection_max
+        hard_projection_point_right = start_projection_max
 
     shadow_points = [
-        None,
-        (end, end_projection),
-        (start, start_projection),
-        None
+        (end, end_projection_min, end_projection_max),
+        #None,
+        (end, hard_projection_point_left),
+        (start, hard_projection_point_right),
+        (start, start_projection_min, start_projection_max)
+        #None
     ]
 
     return shadow_points

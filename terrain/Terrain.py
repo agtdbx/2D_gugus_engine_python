@@ -27,8 +27,8 @@ class Terrain:
         #self.lights.append(LightPolygon((960, 810), [(-10, 0), (0, -10), (10, 0), (0, 10)], 0, 400, 200, (0, 255, 255)))
         #self.lights.append(LightCircle((1600, 810), 0, 400, 200, (255, 0, 255)))
 
-        #self.lights.append(LightCircle((960, 540), 50, 350, 200, (0, 255, 255)))
-        self.lights.append(LightCircle((960, 540), 0, 400, 200, (0, 255, 255)))
+        self.lights.append(LightCircle((960, 540), 50, 350, 200, (0, 255, 255)))
+        #self.lights.append(LightCircle((960, 540), 0, 400, 200, (0, 255, 255)))
 
         self.lights_surface = []
         for i in range(len(self.lights)):
@@ -42,11 +42,15 @@ class Terrain:
         #   (800, 450),
         #   [(-30, 10), (-30, -10), (-20, -10), (-20, 0), (20, 0), (20, -10), (30, -10), (30, 10)]
         #))
-        self.shadows.append(ShadowRectangle(
-            (900, 450),
-            (30, 10)
+        #self.shadows.append(ShadowRectangle(
+        #    (900, 450),
+        #    (30, 10)
+        #))
+        self.shadows.append(ShadowPolygon(
+           (900, 450),
+           [(15, 0), (-15, 0)]
         ))
-        #self.shadows.append(ShadowCircle((1000, 450), 30, False))
+        #self.shadows.append(ShadowCircle((1000, 450), 30))
         #for y in range(50, int(self.size.y), 100):
         #    for x in range(50, int(self.size.x), 100):
         #        self.shadows.append(ShadowPolygon(

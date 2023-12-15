@@ -63,7 +63,10 @@ class ShadowPolygon(Shadow):
         """
         Method to draw the shadow's shape for debuging
         """
-        pg.draw.polygon(surface, color, self.points)
+        if self.number_of_points > 2:
+            pg.draw.polygon(surface, color, self.points)
+        elif self.number_of_points == 2:
+            pg.draw.line(surface, color, self.points[0], self.points[1])
 
 
     def draw_outline(
