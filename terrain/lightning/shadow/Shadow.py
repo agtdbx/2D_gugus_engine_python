@@ -21,13 +21,14 @@ class Shadow(ABC):
     def __init__(
             self,
             position:tuple[float, float],
+            shadowOnObject:bool=True
         ) -> None:
         """
         position:tuple[float, float] -> the position of the center of the shadow obstacle
-        points:list[tuple[float, float]] -> list of point relative of center, need to be in clock wise !
-        degree:float=0 -> start rotation in degrees
+        shadowOnObject:bool -> If the shadow cover the object. False by default
         """
         self.position = vec2(position)
+        self.shadowOnObject = shadowOnObject
         self.circle_arround_radius_squared = 0
 
 
@@ -162,6 +163,7 @@ def segment_shadow_projection(
         segment:Segment,
         light:Light,
         previous_compute_info:tuple[vec2, vec2, float] | None,
+        invert:bool=False
         ) -> list[tuple[vec2, vec2]] | None:
     """
     Calculate the point for create a shadow polygon
@@ -178,8 +180,12 @@ def segment_shadow_projection(
     dist = math.sqrt(dist)
     direction_light_segment /= dist
     # If the light and the normal are in same direction, no shadow
-    if direction_light_segment.dot(segment.normal) > 0:
-        return None
+    if invert:
+        if direction_light_segment.dot(segment.normal) < 0:
+            return None
+    else:
+        if direction_light_segment.dot(segment.normal) > 0:
+            return None
 
     # In case of hard shadow
 

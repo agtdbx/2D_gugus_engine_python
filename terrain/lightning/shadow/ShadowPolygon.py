@@ -21,14 +21,16 @@ class ShadowPolygon(Shadow):
             position:tuple[float, float],
             points:list[tuple[float, float]],
             degree:float=0,
+            shadowOnObject:bool=True
         ) -> None:
         """
         position:tuple[float, float] -> the position of the center of the shadow obstacle
         points:list[tuple[float, float]] -> list of point relative of center, need to be in clock wise !
         degree:float=0 -> start rotation in degrees
+        shadowOnObject:bool -> If the shadow cover the polygon. True by default
         """
         # Call parent constructor
-        super().__init__(position)
+        super().__init__(position, shadowOnObject)
 
         # Creation lists of points
         self.circle_arround_radius = 0
@@ -101,7 +103,7 @@ class ShadowPolygon(Shadow):
         # Compute all shadow point
         previous_compute_info = None
         for seg in self.segments:
-            shadow_projection = segment_shadow_projection(seg, light, previous_compute_info)
+            shadow_projection = segment_shadow_projection(seg, light, previous_compute_info, not self.shadowOnObject)
 
             if shadow_projection != None:
                 self.drawShadow(surface, shadow_projection)
@@ -127,7 +129,7 @@ class ShadowPolygon(Shadow):
         direction = vec2(direction)
         self.position += direction
         for point in self.points:
-            self.point += direction
+            point += direction
         self._computeSegment()
 
 
@@ -139,7 +141,7 @@ class ShadowPolygon(Shadow):
         direction = position - self.position
         self.position = position
         for point in self.points:
-            self.point += direction
+            point += direction
         self._computeSegment()
 
 

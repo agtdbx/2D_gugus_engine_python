@@ -22,18 +22,21 @@ class ShadowCircle(Shadow):
             self,
             position:tuple[float, float],
             radius:float,
+            shadowOnObject:bool=True
         ) -> None:
         """
         position:tuple[float, float] -> the position of the center of the shadow obstacle
         points:list[tuple[float, float]] -> list of point relative of center, need to be in clock wise !
         degree:float=0 -> start rotation in degrees
+        shadowOnObject:bool -> If the shadow cover the object. True by default (False is less optimized)
         """
         # Call parent constructor
-        super().__init__(position)
+        super().__init__(position, shadowOnObject)
 
         # Creation lists of points
         self.radius = radius
         self.radius_squarred = self.radius ** 2
+        self.diameter = self.radius * 2
 
 
     def draw(self, surface:pg.Surface, color:tuple[int, int, int]):
@@ -52,7 +55,7 @@ class ShadowCircle(Shadow):
         """
         Method to draw the outline for debuging
         """
-        pg.draw.circle(surface, color, self.position, self.radius, outline_width)
+        pg.draw.circle(surface, outline_color, self.position, self.radius, outline_width)
 
 
     def draw_shadow(
@@ -131,8 +134,19 @@ class ShadowCircle(Shadow):
             ]
 
         # Draw the shadow
-        pg.draw.circle(surface, (0, 0, 0, 0), position, self.radius)
+        if self.shadowOnObject:
+            pg.draw.circle(surface, (0, 0, 0, 0), position, self.radius)
         self.drawShadow(surface, shadow_points)
+
+        if not self.shadowOnObject:
+            top_left_pos = position - vec2(self.radius, self.radius)
+
+            circle_surface = pg.Surface((self.diameter, self.diameter), pg.SRCALPHA)
+            circle_surface.fill((0, 0, 0, 0))
+            pg.draw.circle(circle_surface, (255, 255, 255, 255), (self.radius, self.radius), self.radius)
+
+            circle_surface.blit(light.surface, top_left_pos * -1, special_flags=pg.BLEND_RGBA_MULT)
+            surface.blit(circle_surface, top_left_pos, special_flags=pg.BLEND_RGBA_MAX)
 
 
     def rotate(self, degrees:float):

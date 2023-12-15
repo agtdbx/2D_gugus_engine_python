@@ -19,11 +19,13 @@ class ShadowRectangle(ShadowPolygon):
             position:tuple[float, float],
             size:[int, int],
             degree:float=0,
+            shadowOnObject:bool=True
         ) -> None:
         """
         position:tuple[float, float] -> the position of the center of the shadow obstacle
         size:[int, int] -> size of the rectangle (width, height)
         degree:float=0 -> start rotation in degrees
+        shadowOnObject:bool -> If the shadow cover the object. True by default
         """
         half_width = size[0] / 2
         half_height = size[1] / 2
@@ -37,4 +39,5 @@ class ShadowRectangle(ShadowPolygon):
             position,
             points,
             degree,
+            shadowOnObject
         )
