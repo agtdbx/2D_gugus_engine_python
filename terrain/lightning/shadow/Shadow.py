@@ -126,35 +126,36 @@ class Shadow(ABC):
             alpha = 255
             end_point_left = proj_soft_left[1]
             end_point_right = proj_soft_right[1]
+            prev_cross_polygon = None
             for _ in range(number_of_lign_left):
-                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point_left, 2)
-                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point_right, 2)
+                if proj_soft_left[2] != proj_hard_left[1]:
+                    seg_left = Segment( proj_hard_left[0], end_point_left)
+                    res_left = seg_left.collide_with_segment(proj_hard_left[1], proj_soft_right[2])
+                    seg_right = Segment( proj_hard_right[0], end_point_right)
+                    res_right = seg_right.collide_with_segment(proj_hard_left[1], proj_soft_left[2])
+
+                    if res_left[0] and res_right[0]:
+                        color = (255, 255, 255, int(alpha))
+                        pg.draw.line(surface_soft_shadow, color, proj_hard_left[0], res_left[1], 2)
+                        pg.draw.line(surface_soft_shadow, color, proj_hard_right[0], res_right[1], 2)
+                        if prev_cross_polygon != None:
+                            pg.draw.polygon(surface_soft_shadow, (255, 255, 255, int(alpha + alpha_minus)),
+                                            [res_left[1], prev_cross_polygon[0], prev_cross_polygon[1], res_right[1]])
+                        prev_cross_polygon = (res_left[1], res_right[1])
+
+                    else:
+                        pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point_left, 2)
+                        pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point_right, 2)
+
+                else:
+                    pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point_left, 2)
+                    pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point_right, 2)
                 end_point_left += move_vec_left
                 end_point_right += move_vec_right
                 alpha = max(0, alpha - alpha_minus)
 
-            # In case of shadow cross
-            if proj_soft_left[2] != proj_hard_left[1]:
-                left_point = proj_soft_left[1].copy()
-                right_point = proj_soft_right[1].copy()
-                move_vec_left = proj_hard_left[1] -  proj_soft_left[2]
-                move_vec_right = proj_hard_right[1] - proj_soft_right[2]
-
-                length = int(move_vec_left.length()) + 1
-                move_vec_left /= length
-                move_vec_right /= length
-
-                alpha = max(0, 255 - (alpha_minus * (number_of_lign_left - length)))
-                alpha_minus = alpha / length
-                for _ in range(length):
-                    pg.draw.line(surface_soft_shadow, (255, 255, 255, min(255, int(alpha))), left_point, right_point, 2)
-                    left_point += move_vec_left
-                    right_point += move_vec_right
-                    alpha = max(0, alpha - alpha_minus)
-                # pg.draw.polygon(surface_soft_shadow, (255, 255, 255, int(alpha)), [proj_hard_left[1], proj_soft_left[2], proj_soft_right[2]])
-
             surface.blit(surface_soft_shadow, (0, 0), None, pg.BLEND_RGBA_MULT)
-            pass
+            #surface.blit(surface_soft_shadow, (0, 0), None)
 
 
 ##############################################################################
