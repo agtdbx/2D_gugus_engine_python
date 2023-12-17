@@ -112,14 +112,14 @@ class Shadow(ABC):
         # Draw hard shadow
         pg.draw.polygon(surface, (0, 0, 0, 0), [proj_hard_left[0], proj_hard_left[1], proj_hard_right[1], proj_hard_right[0]])
 
-        # Draw soft shadow
+        # Draw soft shadow both side
         if proj_soft_left != None and proj_soft_right != None:
             surface_soft_shadow = surface.copy()
             surface_soft_shadow.fill((255, 255, 255, 255))
 
             left_min_max = proj_soft_left[2] - proj_soft_left[1]
             right_min_max = proj_soft_right[2] - proj_soft_right[1]
-            number_of_lign_left = int(left_min_max.length()) + 1
+            number_of_lign_left = max(int(left_min_max.length()), int(right_min_max.length())) + 1
             move_vec_left = left_min_max / number_of_lign_left
             move_vec_right = right_min_max / number_of_lign_left
             alpha_minus = 255 / number_of_lign_left
@@ -129,9 +129,9 @@ class Shadow(ABC):
             prev_cross_polygon = None
             for _ in range(number_of_lign_left):
                 if proj_soft_left[2] != proj_hard_left[1]:
-                    seg_left = Segment( proj_hard_left[0], end_point_left)
+                    seg_left = Segment(proj_hard_left[0], end_point_left)
                     res_left = seg_left.collide_with_segment(proj_hard_left[1], proj_soft_right[2])
-                    seg_right = Segment( proj_hard_right[0], end_point_right)
+                    seg_right = Segment(proj_hard_right[0], end_point_right)
                     res_right = seg_right.collide_with_segment(proj_hard_left[1], proj_soft_left[2])
 
                     if res_left[0] and res_right[0]:
@@ -155,7 +155,42 @@ class Shadow(ABC):
                 alpha = max(0, alpha - alpha_minus)
 
             surface.blit(surface_soft_shadow, (0, 0), None, pg.BLEND_RGBA_MULT)
-            #surface.blit(surface_soft_shadow, (0, 0), None)
+
+        # Draw soft shadow left side
+        elif proj_soft_left != None:
+            surface_soft_shadow = surface.copy()
+            surface_soft_shadow.fill((255, 255, 255, 255))
+
+            left_min_max = proj_soft_left[2] - proj_soft_left[1]
+            number_of_lign_left = int(left_min_max.length()) + 1
+            move_vec_left = left_min_max / number_of_lign_left
+            alpha_minus = 255 / number_of_lign_left
+            alpha = 255
+            end_point_left = proj_soft_left[1]
+            for _ in range(number_of_lign_left):
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_left[0], end_point_left, 2)
+                end_point_left += move_vec_left
+                alpha = max(0, alpha - alpha_minus)
+
+            surface.blit(surface_soft_shadow, (0, 0), None, pg.BLEND_RGBA_MULT)
+
+        # Draw soft shadow right side
+        elif proj_soft_right != None:
+            surface_soft_shadow = surface.copy()
+            surface_soft_shadow.fill((255, 255, 255, 255))
+
+            right_min_max = proj_soft_right[2] - proj_soft_right[1]
+            number_of_lign_right = int(right_min_max.length()) + 1
+            move_vec_right = right_min_max / number_of_lign_right
+            alpha_minus = 255 / number_of_lign_right
+            alpha = 255
+            end_point_right = proj_soft_right[1]
+            for _ in range(number_of_lign_right):
+                pg.draw.line(surface_soft_shadow, (255, 255, 255, int(alpha)), proj_hard_right[0], end_point_right, 2)
+                end_point_right += move_vec_right
+                alpha = max(0, alpha - alpha_minus)
+
+            surface.blit(surface_soft_shadow, (0, 0), None, pg.BLEND_RGBA_MULT)
 
 
 ##############################################################################
@@ -192,38 +227,36 @@ def segment_shadow_projection(
             return None
 
     # Compute point position in light surface position as origin
-    start = segment.start_point - light.surface_position
-    end = segment.end_point - light.surface_position
+    right = segment.start_point - light.surface_position
+    left = segment.end_point - light.surface_position
 
     # In case of hard shadow
     if light.inner == 0:
-        if previous_compute_info != None and previous_compute_info[0] == start:
-            start_projection = previous_compute_info[1]
-            distance_light_start = previous_compute_info[2]
+        if previous_compute_info != None and previous_compute_info[0] == right:
+            right_projection = previous_compute_info[1]
+            distance_light_right = previous_compute_info[2]
         else:
-            start_projection = None
-            direction_light_start = segment.start_point - light.position
-            distance_light_start = direction_light_start.length()
-            direction_light_start /= distance_light_start
+            right_projection = None
+            direction_light_right = segment.start_point - light.position
+            distance_light_right = direction_light_right.length()
+            direction_light_right /= distance_light_right
 
-        end_projection = None
-        direction_light_end = segment.end_point - light.position
-        distance_light_end = direction_light_end.length()
-        direction_light_end /= distance_light_end
+        left_projection = None
+        direction_light_left = segment.end_point - light.position
+        distance_light_left = direction_light_left.length()
+        direction_light_left /= distance_light_left
 
-        length_of_projection = light.effect_range - min(distance_light_start, distance_light_end)
-
-        # Compute start point projection if it's not already compute, and insert it in compute list
-        if start_projection == None:
-            start_projection = start + direction_light_start * length_of_projection
-        # Compute end point projection
-        end_projection = end + direction_light_end * length_of_projection
-        previous_compute_info = (end, end_projection, distance_light_end)
+        # Compute right point projection if it's not already compute, and insert it in compute list
+        if right_projection == None:
+            right_projection = right + direction_light_right * length_of_projection
+        # Compute left point projection
+        left_projection = left + direction_light_left * length_of_projection
+        previous_compute_info = (left, left_projection, distance_light_left)
 
         shadow_points = [
             None,
-            (end, end_projection),
-            (start, start_projection),
+            (left, left_projection),
+            (right, right_projection),
             None
         ]
 
@@ -231,50 +264,36 @@ def segment_shadow_projection(
 
     # Soft shadow
     normal = get_normal_of_segment(segment.center, light.position)
+
     left_light_pos = light.position_into_surface - normal * light.inner
     right_light_pos = light.position_into_surface + normal * light.inner
 
-    # Compute start projections
-    direction_light_start_min = start - left_light_pos
-    distance_light_start_min = direction_light_start_min.length()
-    direction_light_start_min /= distance_light_start_min
+    # Compute left points projections
+    direction_light_left_min = (left - right_light_pos).normalize()
+    direction_light_left_max = (left - left_light_pos).normalize()
+    left_projection_min = left + direction_light_left_min * length_of_projection
+    left_projection_max = left + direction_light_left_max * length_of_projection
 
-    direction_light_start_max = start - right_light_pos
-    distance_light_start_max = direction_light_start_max.length()
-    direction_light_start_max /= distance_light_start_max
+    # Compute right points projections
+    direction_light_right_min = (right - left_light_pos).normalize()
+    direction_light_right_max = (right - right_light_pos).normalize()
+    right_projection_min = right + direction_light_right_min * length_of_projection
+    right_projection_max = right + direction_light_right_max * length_of_projection
 
-    # Compute end projections
-    direction_light_end_min = end - right_light_pos
-    distance_light_end_min = direction_light_end_min.length()
-    direction_light_end_min /= distance_light_end_min
-
-    direction_light_end_max = end - left_light_pos
-    distance_light_end_max = direction_light_end_max.length()
-    direction_light_end_max /= distance_light_end_max
-
-    # Compute starts point projection
-    start_projection_min = start + direction_light_start_min * length_of_projection
-    start_projection_max = start + direction_light_start_max * length_of_projection
-    # Compute end point projection
-    end_projection_min = end + direction_light_end_min * length_of_projection
-    end_projection_max = end + direction_light_end_max * length_of_projection
-
-    seg_left = Segment(end, end_projection_max)
-    collide_res = seg_left.collide_with_segment(start, start_projection_max)
+    seg_left = Segment(left, left_projection_max)
+    collide_res = seg_left.collide_with_segment(right, right_projection_max)
     if collide_res[0]:
         hard_projection_point_left = collide_res[1]
         hard_projection_point_right = collide_res[1]
     else:
-        hard_projection_point_left = end_projection_max
-        hard_projection_point_right = start_projection_max
+        hard_projection_point_left = left_projection_max
+        hard_projection_point_right = right_projection_max
 
     shadow_points = [
-        (end, end_projection_min, end_projection_max),
-        #None,
-        (end, hard_projection_point_left),
-        (start, hard_projection_point_right),
-        (start, start_projection_min, start_projection_max)
-        #None
+        (left, left_projection_min, left_projection_max),
+        (left, hard_projection_point_left),
+        (right, hard_projection_point_right),
+        (right, right_projection_min, right_projection_max)
     ]
 
     return shadow_points

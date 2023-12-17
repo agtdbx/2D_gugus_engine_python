@@ -66,6 +66,16 @@ class Game:
         delta = tmp - self.last
         self.last = tmp
 
+        if self.keyboardState[pg.K_UP]:
+            self.terrain.lights[0].move((0, -100 * delta))
+        if self.keyboardState[pg.K_DOWN]:
+            self.terrain.lights[0].move((0, 100 * delta))
+        if self.keyboardState[pg.K_LEFT]:
+            self.terrain.lights[0].move((-100 * delta, 0))
+        if self.keyboardState[pg.K_RIGHT]:
+            self.terrain.lights[0].move((100 * delta, 0))
+
+
         self.terrain.update(delta)
 
         pg.display.set_caption(str(self.clock.get_fps()))

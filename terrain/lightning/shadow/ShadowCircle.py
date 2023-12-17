@@ -92,7 +92,7 @@ class ShadowCircle(Shadow):
             projection_point_right = point_right + dir_point_right_light * shadow_lenght
 
             # Creation shadow_points
-            shadow_points = [
+            shadow_projection = [
                 None,
                 (point_left, projection_point_left),
                 (point_right, projection_point_right),
@@ -125,18 +125,17 @@ class ShadowCircle(Shadow):
                 hard_projection_point_left = projection_point_left_max
                 hard_projection_point_right = projection_point_right_max
 
-            # Creation shadow_points
-            shadow_points = [
+            # Creation shadow_projection
+            shadow_projection = [
                 (point_left, projection_point_left_min, projection_point_left_max),
                 (point_left, hard_projection_point_left),
                 (point_right, hard_projection_point_right),
-                (point_right, projection_point_right_min, projection_point_right_max)
+                (point_right, projection_point_right_min, projection_point_right_max),
             ]
-
         # Draw the shadow
         if self.shadowOnObject:
             pg.draw.circle(surface, (0, 0, 0, 0), position, self.radius)
-        self.drawShadow(surface, shadow_points)
+        self.drawShadow(surface, shadow_projection)
 
         if not self.shadowOnObject:
             top_left_pos = position - vec2(self.radius, self.radius)

@@ -58,6 +58,12 @@ class Light(ABC):
         self.surface_position = self.position - self.position_into_surface
 
 
+    def move(self, vec:tuple):
+        vec = vec2(vec)
+        self.position += vec
+        self.surface_position += vec
+
+
     @abstractmethod
     def _compute_light_surface(self):
         pass

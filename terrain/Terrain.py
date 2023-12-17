@@ -46,11 +46,11 @@ class Terrain:
         #    (900, 450),
         #    (30, 10)
         #))
-        #self.shadows.append(ShadowPolygon(
-        #   (900, 450),
-        #   [(15, 0), (-15, 0)]
-        #))
-        self.shadows.append(ShadowCircle((1000, 450), 30))
+        self.shadows.append(ShadowPolygon(
+           (800, 440),
+           [(30, 0), (-30, 0)]
+        ))
+        self.shadows.append(ShadowCircle((1120, 440), 30))
         #for y in range(50, int(self.size.y), 100):
         #    for x in range(50, int(self.size.x), 100):
         #        self.shadows.append(ShadowPolygon(
