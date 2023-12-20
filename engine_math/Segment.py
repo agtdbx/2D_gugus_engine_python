@@ -21,7 +21,8 @@ class Segment:
 
 
     def _compute_variables(self):
-        self.direction = self.end_point - self.start_point
+        self.vec2 = self.end_point - self.start_point
+        self.direction = self.vec2.copy()
         self.length = self.direction.length()
         if self.length > 0:
             self.direction /= self.length
