@@ -132,17 +132,20 @@ class Shadow(ABC):
             if is_cross_shadow:
                 seg_left = Segment(proj_hard_left[1], proj_soft_right[2])
                 seg_right = Segment(proj_hard_right[1], proj_soft_left[2])
-            # print("nb point :", number_of_lign_left)
+                end_middle_seg = proj_soft_right[2] - proj_soft_left[2]
+                end_middle = proj_soft_left[2] + (end_middle_seg * 0.5)
+                seg_middle = Segment(proj_hard_right[1], end_middle)
             for _ in range(number_of_lign_left):
                 color = (255, 255, 255, int(alpha))
                 if is_cross_shadow:
-                    res_left = seg_left.collide_with_segment(proj_hard_left[0], end_point_left)
+
+                    res_left = seg_middle.collide_with_segment(proj_hard_left[0], end_point_left)
                     if res_left[0]:
                         pg.draw.line(surface_soft_shadow, color, proj_hard_left[0], res_left[1], 2)
                     else:
                         pg.draw.line(surface_soft_shadow, color, proj_hard_left[0], end_point_left, 2)
 
-                    res_right = seg_right.collide_with_segment(proj_hard_right[0], end_point_right)
+                    res_right = seg_middle.collide_with_segment(proj_hard_right[0], end_point_right)
                     if res_right[0]:
                         pg.draw.line(surface_soft_shadow, color, proj_hard_right[0], res_right[1], 2)
                     else:
@@ -156,55 +159,55 @@ class Shadow(ABC):
                 end_point_right += move_vec_right
                 alpha = max(0, alpha - alpha_minus)
 
-            if is_cross_shadow:
-                res_left = seg_left.collide_with_segment(proj_soft_left[1], proj_soft_left[2])
-                res_right = seg_right.collide_with_segment(proj_soft_right[1], proj_soft_right[2])
+            # if is_cross_shadow:
+            #     res_left = seg_left.collide_with_segment(proj_soft_left[1], proj_soft_left[2])
+            #     res_right = seg_right.collide_with_segment(proj_soft_right[1], proj_soft_right[2])
 
-                if res_left[0]:
-                    seg_left.set_end_point(res_left[1])
-                if res_right[0]:
-                    seg_right.set_end_point(res_right[1])
+            #     if res_left[0]:
+            #         seg_left.set_end_point(res_left[1])
+            #     if res_right[0]:
+            #         seg_right.set_end_point(res_right[1])
 
-                # nb_points = int(max(seg_left.length, seg_right.length))
-                # if nb_points != 0:
-                #     left_vec = seg_left.vec2.copy() / nb_points
-                #     left_point = seg_left.start_point.copy()
-                #     right_vec = seg_right.vec2.copy() / nb_points
-                #     right_point = seg_right.start_point.copy()
-                #     alpha = 0
-                #     alpha_add = 200 / nb_points
-                #     for _ in range(nb_points + 1):
-                #         color = (255, 255, 255, int(alpha))
-                #         pg.draw.line(surface_soft_shadow, color, left_point, right_point, 2)
-                #         left_point += left_vec
-                #         right_point += right_vec
-                #         alpha = min(255, alpha + alpha_add)
+            #     # nb_points = int(max(seg_left.length, seg_right.length))
+            #     # if nb_points != 0:
+            #     #     left_vec = seg_left.vec2.copy() / nb_points
+            #     #     left_point = seg_left.start_point.copy()
+            #     #     right_vec = seg_right.vec2.copy() / nb_points
+            #     #     right_point = seg_right.start_point.copy()
+            #     #     alpha = 0
+            #     #     alpha_add = 200 / nb_points
+            #     #     for _ in range(nb_points + 1):
+            #     #         color = (255, 255, 255, int(alpha))
+            #     #         pg.draw.line(surface_soft_shadow, color, left_point, right_point, 2)
+            #     #         left_point += left_vec
+            #     #         right_point += right_vec
+            #     #         alpha = min(255, alpha + alpha_add)
 
-                # pg.draw.polygon(surface, (255, 0, 255, 255), [seg_left.start_point, seg_left.end_point, seg_right.end_point, seg_right.start_point])
+            #     # pg.draw.polygon(surface, (255, 0, 255, 255), [seg_left.start_point, seg_left.end_point, seg_right.end_point, seg_right.start_point])
 
-                vec_left_to_right = seg_right.end_point - seg_left.end_point
-                number_of_lines = int(vec_left_to_right.length()) + 1
-                vec_left_to_right /= number_of_lines
-                left_point = seg_left.end_point.copy()
-                right_point = seg_right.end_point.copy()
+            #     vec_left_to_right = seg_right.end_point - seg_left.end_point
+            #     number_of_lines = int(vec_left_to_right.length()) + 1
+            #     vec_left_to_right /= number_of_lines
+            #     left_point = seg_left.end_point.copy()
+            #     right_point = seg_right.end_point.copy()
 
-                dist_from_start_shadow = int((proj_soft_left[1] - seg_left.end_point).length())
+            #     dist_from_start_shadow = int((proj_soft_left[1] - seg_left.end_point).length())
 
-                pg.draw.line(surface, (255, 0, 0), proj_soft_left[1], seg_left.end_point)
+            #     pg.draw.line(surface, (255, 0, 0), proj_soft_left[1], seg_left.end_point)
 
-                # print("dist from", dist_from_start_shadow)
+            #     # print("dist from", dist_from_start_shadow)
 
-                # alpha = 255 - (dist_from_start_shadow * alpha_minus)
-                alpha = 150
-                # print("alpha start", alpha)
+            #     # alpha = 255 - (dist_from_start_shadow * alpha_minus)
+            #     alpha = 150
+            #     # print("alpha start", alpha)
 
-                for _ in range(number_of_lines // 2 + 1):
-                    color = (255, 255, 255, int(alpha))
-                    pg.draw.line(surface_soft_shadow, color, seg_left.start_point, left_point, 2)
-                    pg.draw.line(surface_soft_shadow, color, seg_left.start_point, right_point, 2)
-                    left_point += vec_left_to_right
-                    right_point -= vec_left_to_right
-                    alpha = max(0, alpha - alpha_minus)
+            #     for _ in range(number_of_lines // 2 + 1):
+            #         color = (255, 255, 255, int(alpha))
+            #         pg.draw.line(surface_soft_shadow, color, seg_left.start_point, left_point, 2)
+            #         pg.draw.line(surface_soft_shadow, color, seg_left.start_point, right_point, 2)
+            #         left_point += vec_left_to_right
+            #         right_point -= vec_left_to_right
+            #         alpha = max(0, alpha - alpha_minus)
 
 
             surface.blit(surface_soft_shadow, (0, 0), None, pg.BLEND_RGBA_MULT)
